@@ -1,0 +1,9 @@
+{
+    "db_host":"127.0.0.1",
+    "db_port":3306,
+    "db":"toll_base",
+    "db_user":"root",
+    "db_password":"",
+    "razorpay_user":"rzp_test_BSlmZyO2yAPcvS",
+    "razorpay_password":"OCWnmdOkOLRg0oQr9s66ahYN"
+}
