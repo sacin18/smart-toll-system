@@ -29,7 +29,7 @@ def isLoginValid(uname,pword):
                         user=stored_val['db_user'],
                         password=stored_val['db_password'])
         cursor=connection.cursor()
-        pword=hashlib.sha256(pword).hexdigest()
+        pword=hashlib.sha256(pword.encode('ascii')).hexdigest()
         sql_query = "SELECT * FROM users where username='"+uname+"' and password='"+pword+"'"
         cursor.execute(sql_query)
         result=cursor.fetchall()
@@ -51,7 +51,7 @@ def getCarid(uname):
                         user=stored_val['db_user'],
                         password=stored_val['db_password'])
         cursor=connection.cursor()
-        sql_query = "SELECT carid FROM users where username='"+uname+"')"
+        sql_query = "SELECT carid FROM users where username='"+uname+"'"
         cursor.execute(sql_query)
         result=cursor.fetchall()
         if(len(result)==0):
@@ -75,10 +75,10 @@ def genTollToken():
         tokb=hashlib.sha256(str(random.random()).encode('ascii')).hexdigest()
         sql_query = "insert into tokens values(null,'"+toka+"','"+tokb+"')"
         cursor.execute(sql_query)
-        if(cursor.rowcount()==0):
+        if(cursor.rowcount==0):
             connection.close()
             return -1
-        sql_query = "select count(*) from tokens"
+        sql_query = "select * from tokens order by tokenid desc limit 1"
         cursor.execute(sql_query)
         result=cursor.fetchall()
         if(len(result)==0):
@@ -86,6 +86,7 @@ def genTollToken():
             return -1
         connection.close()
         tokenid=result[0][0]
+        return tokenid
     except mysql.connector.Error as error:
         print("Failed to access mysql tables {}".format(error))
     return -1
@@ -98,7 +99,7 @@ def getPriviledge(username):
                         user=stored_val['db_user'],
                         password=stored_val['db_password'])
         cursor=connection.cursor()
-        sql_query = "SELECT user_prividelige FROM users where username='"+username+"')"
+        sql_query = "SELECT user_prividelige FROM users where username='"+username+"'"
         cursor.execute(sql_query)
         result=cursor.fetchall()
         if(len(result)==0):
@@ -136,7 +137,7 @@ def isPaymentDone():
         auth=HTTPBasicAuth(username,password),verify=False)
     if(response.status_code==200):
         out=dict()
-        resp=json.loads(response.json())
+        resp=response.json()
         if(resp['status']=="paid"):
             out["status"]="paid"
             out["amount_paid"]=resp["amount_paid"]
@@ -163,8 +164,10 @@ def isTokenReady():
     if(tollid==None or tollid==""):
         return "tollid not provided",400
     now=datetime.now()
-    now=now+relativedelta(minutes=30)
-    schedule = now.strftime('%Y-%m-%d %H:%M:%S')
+    schedule=now+relativedelta(minutes=30)
+    schedule = schedule.strftime('%Y-%m-%d %H:%M:%S')
+    oldschedule = now-relativedelta(days=1)
+    oldschedule = oldschedule.strftime('%Y-%m-%d %H:%M:%S')
     try:
         connection = mysql.connector.connect(host=stored_val['db_host'],
                         port=stored_val['db_port'],
@@ -172,21 +175,20 @@ def isTokenReady():
                         user=stored_val['db_user'],
                         password=stored_val['db_password'])
         cursor=connection.cursor()
-        sql_query = "select tokenid from token_dist where tollid="+str(tollid)+\
-                " and carid in (select carid from users where username='"+username+"')"\
-                " and schedule<'"+schedule+"'"
+        sql_query = "select tokenid from token_dist where tollid='"+str(tollid)+\
+                "' and carid in (select carid from users where username='"+username+"')"\
+                " and schedule<'"+schedule+"' and schedule>'"+oldschedule+"' order by tokenid desc"
         cursor.execute(sql_query)
         result=cursor.fetchall()
         if(len(result)==0):
             connection.close()
             return "tokenid not found",404
         connection.close()
-        return result[0][0],200
+        return str(result[0][0]),200
     except mysql.connector.Error as error:
         print("Failed to access mysql tables {}".format(error))
     return "failed",500
     
-
 @app.route('/login', methods=['POST'])
 @cross_origin()
 def login():
@@ -215,6 +217,9 @@ def blacklistCar():
         return "incorrect credentials",401
     if(getPriviledge(username)!='t'):
         return "unauthorized to perform token fetch",401
+    username=flask.request.form['username']
+    if(username==None or username==""):
+        return "username not provided",400
     try:
         connection = mysql.connector.connect(host=stored_val['db_host'],
                         port=stored_val['db_port'],
@@ -222,10 +227,9 @@ def blacklistCar():
                         user=stored_val['db_user'],
                         password=stored_val['db_password'])
         cursor=connection.cursor()
-        pword=hashlib.sha256(pword).hexdigest()
         sql_query = "update users set user_prividelige='b' where username='"+str(username)+"' and user_prividelige='d'"
         cursor.execute(sql_query)
-        result=cursor.rowcount()
+        result=cursor.rowcount
         if(result==0):
             connection.close()
             return "blacklisting failed",400
@@ -302,10 +306,10 @@ def scheduleLater():
                         user=stored_val['db_user'],
                         password=stored_val['db_password'])
         cursor=connection.cursor()
-        sql_query = "insert into token_dist values('"+tollid+"','"+carid+"','"+tokenid+"','"+schedule+"')"
+        sql_query = "insert into token_dist values('"+str(tollid)+"','"+str(carid)+"','"+str(tokenid)+"','"+str(schedule)+"')"
         #tollid int,carid int,tokenid int,schedule timestamp
         cursor.execute(sql_query)
-        if(cursor.rowcount()==0):
+        if(cursor.rowcount==0):
             connection.close()
             return "scheduling failed",500
         connection.close()
@@ -322,8 +326,8 @@ def tollSearch():
     out=dict()
     if(flask.request.form==None):
         return "form arguements not passed",400
-    locn=flask.request.form["locn"]
-    loce=flask.request.form["loce"]
+    locn=flask.request.args.get("locn")
+    loce=flask.request.args.get("loce")
     if(locn==None or locn=="" or loce==None or loce==""):
         return "enough arguements not passed",400
     try:
@@ -452,10 +456,10 @@ def scheduleNow():
                         user=stored_val['db_user'],
                         password=stored_val['db_password'])
         cursor=connection.cursor()
-        sql_query = "insert into token_dist values('"+tollid+"','"+carid+"','"+tokenid+"','"+schedule+"')"
+        sql_query = "insert into token_dist values('"+str(tollid)+"','"+str(carid)+"','"+str(tokenid)+"','"+str(schedule)+"')"
         #tollid int,carid int,tokenid int,schedule timestamp
         cursor.execute(sql_query)
-        if(cursor.rowcount()==0):
+        if(cursor.rowcount==0):
             connection.close()
             return "scheduling failed",500
         connection.close()
@@ -478,14 +482,14 @@ def walletMoneyView():
                         user=stored_val['db_user'],
                         password=stored_val['db_password'])
         cursor=connection.cursor()
-        sql_query = "select money from user where username='"+username+"'"
+        sql_query = "select money from users where username='"+username+"'"
         cursor.execute(sql_query)
         result=cursor.fetchall()
         if(len(result)==0):
             connection.close()
             return "tokenid not found",404
         connection.close()
-        return result[0][0],200
+        return str(result[0][0]),200
     except mysql.connector.Error as error:
         print("Failed to access mysql tables {}".format(error))
     return "failed to fetch wallet",500
@@ -509,14 +513,15 @@ def addWalletMoney():
     data["type"]= "link"
     data["description"]="adding money to some user"
     response = requests.post('https://api.razorpay.com/v1/invoices',
-        auth=HTTPBasicAuth(username,password),verify=False)
+        auth=HTTPBasicAuth(username,password),data=data,verify=False)
     if(response.status_code==200):
         out=dict()
-        resp=json.loads(response.json())
+        resp=response.json()
         out["status"]="unpaid"
         out["link"]=resp["short_url"]
         out["inv_id"]=resp["id"]
         return out,200
+    print(response.text)
     return "request to razorpay failed",response.status_code
 
 @app.route('/updateWallet', methods=['GET'])
@@ -530,9 +535,12 @@ def updateWallet():
     password=stored_val['razorpay_password']
     response = requests.get('https://api.razorpay.com/v1/invoices/'+str(invoice_id),
         auth=HTTPBasicAuth(username,password),verify=False)
+    username=flask.request.args.get('username')
+    if(username==None or username.strip()==""):
+        return "username not provided",400
     if(response.status_code==200):
         out=dict()
-        resp=json.loads(response.json())
+        resp=response.json()
         if(resp['status']=="paid"):
             money_addition=int(float(resp["amount_paid"])/100)
             t=datetime.fromtimestamp(int(resp["paid_at"]))
@@ -549,6 +557,12 @@ def updateWallet():
                                 user=stored_val['db_user'],
                                 password=stored_val['db_password'])
                 cursor=connection.cursor()
+                sql_query = "select * from invoice_list where invoice_id='"+invoice_id+"'"
+                cursor.execute(sql_query)
+                result=cursor.fetchall()
+                if(len(result)!=0):
+                    connection.close()
+                    return "invoice id already used",403
                 sql_query = "select money from users where username='"+str(username)+"'"
                 cursor.execute(sql_query)
                 result=cursor.fetchall()
@@ -559,14 +573,23 @@ def updateWallet():
                 money+=money_addition
                 sql_query = "update users set money="+str(money)+" where username='"+str(username)+"'"
                 cursor.execute(sql_query)
-                result=cursor.rowcount()
+                result=cursor.rowcount
                 if(result==0):
                     connection.close()
                     return "wallet update failed",500
+                sql_query = "insert into invoice_list values('"+invoice_id+"')"
+                cursor.execute(sql_query)
+                result=cursor.rowcount
+                if(result==0):
+                    connection.close()
+                    return "invoice list update failed",500
                 connection.close()
                 return "wallet successfully updated",200
             except mysql.connector.Error as error:
                 print("Failed to access mysql tables {}".format(error))
+                return "database entry failure",500
+        else:
+            return "payment due",406
     return "request to razorpay failed",response.status_code
 
 @app.route('/tokenSend', methods=['GET'])
@@ -581,9 +604,6 @@ def tokenSend():
         return "invalid authorization arguments",400
     if(not isLoginValid(username,password)):
         return "incorrect credentials",401
-    tokenid=flask.request.args.get("tokenid")
-    if(tokenid==None or tokenid==""):
-        return "tokenid not provided",400
     try:
         connection = mysql.connector.connect(host=stored_val['db_host'],
                         port=stored_val['db_port'],
@@ -591,7 +611,7 @@ def tokenSend():
                         user=stored_val['db_user'],
                         password=stored_val['db_password'])
         cursor=connection.cursor()
-        sql_query = "select tokena,tokenb from tokens where tokenid in (select tokenid from token_dist where carid in (select carid from users where username='"+username+"'))"
+        sql_query = "select tokena,tokenb from tokens where tokenid in (select tokenid from token_dist where carid in (select carid from users where username='"+username+"')) order by tokenid desc limit 1"
         cursor.execute(sql_query)
         result=cursor.fetchall()
         if(len(result)==0):
@@ -620,6 +640,8 @@ def tollOpened():
         return "incorrect credentials",401
     if(flask.request.form==None):
         return "form arguements not passed",400
+    if(getPriviledge(username)!='t'):
+        return "unauthorized to make entry",401
     tollid=flask.request.form["tollid"]
     laneid=flask.request.form["laneid"]
     carid=flask.request.form["carid"]
@@ -638,13 +660,19 @@ def tollOpened():
         cursor=connection.cursor()
         sql_query = "insert into transit values(null,'"+carid+"','"+time_local+"','"+time_server+"','"+tollid+"','"+laneid+"')"
         cursor.execute(sql_query)
-        if(cursor.rowcount()==0):
+        if(cursor.rowcount==0):
             connection.close()
             return "transaction entry failed",500
+        sql_query = "update users set money=money-100 where carid='"+carid+"'"
+        cursor.execute(sql_query)
+        if(cursor.rowcount==0):
+            connection.close()
+            return "money update failed",500
         connection.close()
         return "successfully enterd transaction",200
     except mysql.connector.Error as error:
         print("Failed to access mysql tables {}".format(error))
+        return "database entry error",500
     return "transaction entry failed",500
 
 @app.route('/getTokens', methods=['GET'])
@@ -661,11 +689,9 @@ def getTokens():
         return "incorrect credentials",401
     if(getPriviledge(username)!='t'):
         return "unauthorized to perform token fetch",401
-    if(flask.request.form==None):
-        return "form arguements not passed",400
-    tollid=flask.request.form["tollid"]
+    tollid=flask.request.args.get("tollid")
     if(tollid==None or tollid==""):
-        return "enough form arguements not passed",400
+        return "tollid not passed",400
     try:
         connection = mysql.connector.connect(host=stored_val['db_host'],
                         port=stored_val['db_port'],
@@ -673,7 +699,7 @@ def getTokens():
                         user=stored_val['db_user'],
                         password=stored_val['db_password'])
         cursor=connection.cursor()
-        sql_query = "select token_dist.carid,tokens.tokena,tokens.tokenb from tokens,token_dist where tokens.tokenid=token_dist.tokenid and token_dist.tollid='"+str(tollid)+"'"
+        sql_query = "select token_dist.carid,tokens.tokenid,tokens.tokena,tokens.tokenb from tokens,token_dist where tokens.tokenid=token_dist.tokenid and token_dist.tokenid in (select max(tokenid) from token_dist group by carid) and token_dist.tollid='"+str(tollid)+"'"
         cursor.execute(sql_query)
         results=cursor.fetchall()
         out=dict()
@@ -683,8 +709,9 @@ def getTokens():
         else:
             for row in results:
                 tmp=dict()
-                tmp["tokena"]=row[1]
-                tmp["tokenb"]=row[2]
+                tmp["tokenid"]=row[1]
+                tmp["tokena"]=row[2]
+                tmp["tokenb"]=row[3]
                 out[row[0]]=tmp
         connection.close()
         return out,200
