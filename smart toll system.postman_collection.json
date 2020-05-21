@@ -1,0 +1,671 @@
+{
+	"info": {
+		"_postman_id": "c21debb4-bd3a-42be-88ac-33468cc5790d",
+		"name": "smart toll system",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "token server",
+			"item": [
+				{
+					"name": "test",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://localhost:9020/test",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "9020",
+							"path": [
+								"test"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "isPaymentDone",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "u1",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "u1",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://localhost:9020/isPaymentDone?invoice_id=inv_EcS9ZgnS8qMBC6",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "9020",
+							"path": [
+								"isPaymentDone"
+							],
+							"query": [
+								{
+									"key": "invoice_id",
+									"value": "inv_EcS9ZgnS8qMBC6"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "isTokenReady",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "u1",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "u1",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "tollid",
+									"value": "1",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "https://localhost:9020/isTokenReady",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "9020",
+							"path": [
+								"isTokenReady"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "login",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "username",
+									"value": "u1",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "u1",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "https://localhost:9020/login",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "9020",
+							"path": [
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "blacklistCar",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "username",
+									"value": "t1",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "t1",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "username",
+									"value": "u1",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "https://localhost:9020/blacklistCar",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "9020",
+							"path": [
+								"blacklistCar"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "carWrtToll",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://localhost:9020/carWrtToll?tollid=1",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "9020",
+							"path": [
+								"carWrtToll"
+							],
+							"query": [
+								{
+									"key": "tollid",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "scheduleLater",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "u1",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "u1",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "tollid",
+									"value": "1",
+									"type": "text"
+								},
+								{
+									"key": "schedule",
+									"value": "2020-05-21 14:12:48",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "https://localhost:9020/scheduleLater",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "9020",
+							"path": [
+								"scheduleLater"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "tollSearch",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://localhost:9020/tollSearch?locn=17.34234&loce=10.32131231",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "9020",
+							"path": [
+								"tollSearch"
+							],
+							"query": [
+								{
+									"key": "locn",
+									"value": "17.34234"
+								},
+								{
+									"key": "loce",
+									"value": "10.32131231"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getTolls",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://localhost:9020/getTolls",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "9020",
+							"path": [
+								"getTolls"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "historyView",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "u1",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "u1",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://localhost:9020/historyView",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "9020",
+							"path": [
+								"historyView"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "scheduleNow",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "u1",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "u1",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "tollid",
+									"value": "1",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "https://localhost:9020/scheduleNow",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "9020",
+							"path": [
+								"scheduleNow"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "walletMoneyView",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "username",
+									"value": "u1",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "u1",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://localhost:9020/walletMoneyView?username=u1",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "9020",
+							"path": [
+								"walletMoneyView"
+							],
+							"query": [
+								{
+									"key": "username",
+									"value": "u1"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "addWalletMoney",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "u1",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "u1",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://localhost:9020/addWalletMoney?money=100.00",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "9020",
+							"path": [
+								"addWalletMoney"
+							],
+							"query": [
+								{
+									"key": "money",
+									"value": "100.00"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "updateWallet",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://localhost:9020/updateWallet?invoice_id=inv_EsxpzTMj9ezMA9&username=u1",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "9020",
+							"path": [
+								"updateWallet"
+							],
+							"query": [
+								{
+									"key": "invoice_id",
+									"value": "inv_EsxpzTMj9ezMA9"
+								},
+								{
+									"key": "username",
+									"value": "u1"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "tokenSend",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "u1",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "u1",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://localhost:9020/tokenSend",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "9020",
+							"path": [
+								"tokenSend"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "tollOpened",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "t1",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "t1",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "tollid",
+									"value": "1",
+									"type": "text"
+								},
+								{
+									"key": "laneid",
+									"value": "1",
+									"type": "text"
+								},
+								{
+									"key": "carid",
+									"value": "1",
+									"type": "text"
+								},
+								{
+									"key": "time_local",
+									"value": "1590037594",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "https://localhost:9020/tollOpened",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "9020",
+							"path": [
+								"tollOpened"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getTokens",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "username",
+									"value": "t1",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "t1",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://localhost:9020/getTokens?tollid=1",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "9020",
+							"path": [
+								"getTokens"
+							],
+							"query": [
+								{
+									"key": "tollid",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"protocolProfileBehavior": {}
+		},
+		{
+			"name": "rapi server",
+			"item": [
+				{
+					"name": "updateEntry",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"data\":[\n\t\t{\n\t\t\t\"carid\":1,\n\t\t\t\"tokena\":\"312312312312\"\n\t\t\t\"tokenb\":\"31315535353\"\n\t\t}\n\t]\n}"
+						},
+						"url": {
+							"raw": "https://localhost:9020/updateEntry",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "9020",
+							"path": [
+								"updateEntry"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"protocolProfileBehavior": {}
+		}
+	],
+	"protocolProfileBehavior": {}
+}
